@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Omar
+      changes:
+        - createTable:
+            tableName: restaurants
+            columns:
+
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: varchar(120)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: text
+
+              - column:
+                  name: logo_url
+                  type: text
+
+              - column:
+                  name: city
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: district
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: street
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: latitude
+                  type: decimal(9,6)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: longitude
+                  type: decimal(9,6)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: manually_paused
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: rating
+                  type: numeric(2,1)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false

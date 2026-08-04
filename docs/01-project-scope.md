@@ -20,7 +20,7 @@ business flow :
 5. user add items to cart
 6. user checkout
 7. user pay
-8. restaurant receives payment from the platform later
+8. restaurant accept the order then receives payment from the platform later
 9. driver is assigned to order
 10. driver delivers food
 11. order is delivered

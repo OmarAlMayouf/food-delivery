@@ -49,3 +49,11 @@ MVP Decision
 - Each physical branch is represented as a separate restaurant.
 
 - Restaurants may be created without menu items.
+
+- Each restaurant must have one or more cuisines
+
+- A restaurant accepts orders only when within opening hours AND not manually paused 
+
+- Opening hours may cross midnight for example (6pm–2am) 
+
+- Hours are local time, no timezone support in MVP

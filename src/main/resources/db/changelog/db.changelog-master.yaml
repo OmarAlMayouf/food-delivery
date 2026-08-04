@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: restaurant/0001-changelog.yaml
+      relativeToChangelogFile: true
