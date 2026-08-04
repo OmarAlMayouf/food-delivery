@@ -1,0 +1,14 @@
+target/
+
+docs/
+
+README.md
+
+.idea
+*.iml
+
+.git/
+
+.DS_Store
+
+.env.example
