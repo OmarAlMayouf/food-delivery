@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18.4
+    container_name: food-delivery-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: food-delivery-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+volumes:
+  postgres-data:
