@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: Omar
+      changes:
+        - createTable:
+            tableName: cuisine_restaurant
+            columns:
+
+              - column:
+                  name: cuisine_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: restaurant_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: cuisine_restaurant
+            columnNames: cuisine_id, restaurant_id
+            constraintName: cuisine_restaurant_pk
+
+        - addForeignKeyConstraint:
+            baseColumnNames: cuisine_id
+            baseTableName: cuisine_restaurant
+            constraintName: fk_cuisine_restaurant__cuisine_id
+            referencedColumnNames: id
+            referencedTableName: cuisines
+            onDelete: RESTRICT
+
+        - addForeignKeyConstraint:
+            baseColumnNames: restaurant_id
+            baseTableName: cuisine_restaurant
+            constraintName: fk_cuisine_restaurant__restaurant_id
+            referencedColumnNames: id
+            referencedTableName: restaurants
+            onDelete: CASCADE
+
+        - createIndex:
+            indexName: restaurant_cuisine_idx
+            tableName: cuisine_restaurant
+            columns:
+              - column:
+                  name: restaurant_id
