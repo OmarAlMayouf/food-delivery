@@ -10,3 +10,7 @@ databaseChangeLog:
   - include:
       file: restaurant/0003-changelog.yaml
       relativeToChangelogFile: true
+
+  - include:
+      file: restaurant/0004-changelog.yaml
+      relativeToChangelogFile: true

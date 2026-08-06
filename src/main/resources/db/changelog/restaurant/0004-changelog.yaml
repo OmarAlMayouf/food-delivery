@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: Omar
+      changes:
+        - modifyDataType:
+            tableName: restaurants
+            columnName: name
+            newDataType: varchar(50)
