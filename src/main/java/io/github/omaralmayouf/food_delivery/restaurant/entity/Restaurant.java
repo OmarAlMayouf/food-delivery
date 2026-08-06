@@ -2,20 +2,26 @@ package io.github.omaralmayouf.food_delivery.restaurant.entity;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import lombok.experimental.FieldDefaults;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -36,6 +42,15 @@ public class Restaurant {
     String description;
     String logoUrl;
     BigDecimal rating;
+
+    // Relationship
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "cuisine_restaurant",
+            joinColumns = @JoinColumn(name = "restaurant_id"),
+            inverseJoinColumns = @JoinColumn(name = "cuisine_id")
+    )
+    Set<Cuisine> cuisines = new HashSet<>();
 
     // Address
     @Embedded
