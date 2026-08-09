@@ -1,5 +1,6 @@
 package io.github.omaralmayouf.food_delivery.restaurant.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -7,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import lombok.Getter;
@@ -52,6 +54,9 @@ public class Restaurant {
     )
     Set<Cuisine> cuisines = new HashSet<>();
 
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<WorkingHours> workingHours = new HashSet<>();
+
     // Address
     @Embedded
     Address address;
@@ -65,5 +70,9 @@ public class Restaurant {
 
     @UpdateTimestamp
     Instant updatedAt;
+
+    public boolean isAcceptingOrders() {
+        return !manuallyPaused && !workingHours.isEmpty();
+    }
 
 }

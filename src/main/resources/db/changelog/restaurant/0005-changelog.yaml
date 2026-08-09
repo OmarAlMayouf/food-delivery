@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: Omar
+      changes:
+        - createTable:
+            tableName: restaurant_working_hours
+            columns:
+
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: restaurant_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: day_of_week
+                  type: int
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: open_time
+                  type: time
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: close_time
+                  type: time
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseColumnNames: restaurant_id
+            baseTableName: restaurant_working_hours
+            constraintName: fk_restaurant_working_hours__restaurant_id
+            referencedColumnNames: id
+            referencedTableName: restaurants
+            onDelete: CASCADE
+
+        # to avoid duplicate entries like this:
+        # "Restaurant A, Sunday, 11:00–15:00"
+        # "Restaurant A, Sunday, 11:00–18:00"
+        # but allow like this:
+        # "Restaurant A, Sunday, 11:00–15:00"
+        # "Restaurant A, Sunday, 21:00–23:00"
+        - addUniqueConstraint:
+            tableName: restaurant_working_hours
+            columnNames: restaurant_id, day_of_week, open_time
+            constraintName: uq_restaurant_working_hours__restaurant_day_open
+
+        # 0-6: Where 0 is Sunday, 6 is Saturday
+        - sql:
+            sql: ALTER TABLE restaurant_working_hours ADD CONSTRAINT chk_day_of_week CHECK (day_of_week BETWEEN 0 and 6);
+            rollback: ALTER TABLE restaurant_working_hours DROP CONSTRAINT chk_day_of_week;
