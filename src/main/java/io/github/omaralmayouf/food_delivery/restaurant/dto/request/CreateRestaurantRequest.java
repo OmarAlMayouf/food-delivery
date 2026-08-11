@@ -1,6 +1,7 @@
 package io.github.omaralmayouf.food_delivery.restaurant.dto.request;
 
 import io.github.omaralmayouf.food_delivery.restaurant.dto.AddressDto;
+import io.github.omaralmayouf.food_delivery.restaurant.dto.WorkingHoursDto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +33,10 @@ public record CreateRestaurantRequest(
 
         @URL(message = "Logo url must be valid")
         String logoUrl,
+
+        @Valid
+        @NotEmpty(message = "Working hours is required")
+        List<WorkingHoursDto> workingHours,
 
         @Valid
         @NotNull(message = "Address is required")

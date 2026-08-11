@@ -2,6 +2,7 @@ package io.github.omaralmayouf.food_delivery.restaurant.dto.response;
 
 import io.github.omaralmayouf.food_delivery.restaurant.dto.AddressDto;
 import io.github.omaralmayouf.food_delivery.restaurant.dto.CuisineDto;
+import io.github.omaralmayouf.food_delivery.restaurant.dto.WorkingHoursDto;
 
 import lombok.Builder;
 
@@ -20,9 +21,11 @@ public record RestaurantResponse(
 
         String logoUrl,
 
+        BigDecimal rating,
+
         AddressDto address,
 
-        BigDecimal rating,
+        List<WorkingHoursDto> workingHours,
 
         List<CuisineDto> cuisines,
 

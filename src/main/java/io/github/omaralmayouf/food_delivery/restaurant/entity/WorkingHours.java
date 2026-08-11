@@ -14,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -42,4 +44,34 @@ public class WorkingHours {
     LocalTime openTime;
 
     LocalTime closeTime;
+
+    static int toPostgresDayOfWeek(DayOfWeek day) {
+        return day.getValue() % 7;
+    }
+
+    public boolean covers(LocalDateTime moment) {
+
+        LocalTime time = moment.toLocalTime();
+
+        if (crossesMidnight()) {
+
+            if (matchesDay(moment.minusDays(1)) && time.isBefore(closeTime)) {
+                return true;
+            }
+
+            return matchesDay(moment) && !time.isBefore(openTime);
+        }
+
+        return matchesDay(moment)
+                && !time.isBefore(openTime)
+                && time.isBefore(closeTime);
+    }
+
+    private boolean crossesMidnight() {
+        return !closeTime.isAfter(openTime);
+    }
+
+    private boolean matchesDay(LocalDateTime moment) {
+        return dayOfWeek == toPostgresDayOfWeek(moment.getDayOfWeek());
+    }
 }

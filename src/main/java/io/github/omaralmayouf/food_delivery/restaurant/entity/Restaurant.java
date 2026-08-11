@@ -22,6 +22,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -71,8 +72,14 @@ public class Restaurant {
     @UpdateTimestamp
     Instant updatedAt;
 
-    public boolean isAcceptingOrders() {
-        return !manuallyPaused && !workingHours.isEmpty();
+    public boolean isAcceptingOrders(LocalDateTime now) {
+        boolean isRestaurantOpen = workingHours.stream().anyMatch(hours -> hours.covers(now));
+        return !manuallyPaused && isRestaurantOpen;
+    }
+
+    public void addWorkingHours(WorkingHours hours) {
+        hours.setRestaurant(this);
+        this.workingHours.add(hours);
     }
 
 }
