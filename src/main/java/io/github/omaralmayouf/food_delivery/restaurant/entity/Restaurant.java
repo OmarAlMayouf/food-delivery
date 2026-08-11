@@ -26,7 +26,6 @@ import org.hibernate.annotations.UuidGenerator;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -80,8 +79,7 @@ public class Restaurant {
     @UpdateTimestamp
     Instant updatedAt;
 
-    public boolean isAcceptingOrders() {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Riyadh"));
+    public boolean isAcceptingOrders(LocalDateTime now) {
         boolean isRestaurantOpen = workingHours.stream().anyMatch(hours -> hours.covers(now));
         return !manuallyPaused && isRestaurantOpen;
     }

@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class RestaurantMapper {
     final CuisineMapper cuisineMapper;
     final WorkingHoursMapper workingHoursMapper;
 
-    public RestaurantResponse toDtoFromEntity(Restaurant restaurant) {
+    public RestaurantResponse toDtoFromEntity(Restaurant restaurant, LocalDateTime now) {
         return RestaurantResponse.builder()
                 .id(restaurant.getId())
                 .name(restaurant.getName())
@@ -30,7 +31,7 @@ public class RestaurantMapper {
                 .address(addressMapper.toDtoFromEntity(restaurant.getAddress()))
                 .workingHours(workingHoursMapper.toDtoListFromEntitySet(restaurant.getWorkingHours()))
                 .cuisines(cuisineMapper.toDtoListFromEntitySet(restaurant.getCuisines()))
-                .acceptingOrders(restaurant.isAcceptingOrders())
+                .acceptingOrders(restaurant.isAcceptingOrders(now))
                 .build();
     }
 

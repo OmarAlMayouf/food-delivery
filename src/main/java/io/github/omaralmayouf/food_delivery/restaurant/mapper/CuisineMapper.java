@@ -5,6 +5,7 @@ import io.github.omaralmayouf.food_delivery.restaurant.entity.Cuisine;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +20,9 @@ public class CuisineMapper {
     }
 
     public List<CuisineDto> toDtoListFromEntitySet(Set<Cuisine> cuisines) {
-        return cuisines.stream().map(this::toDtoFromEntity).toList();
+        return cuisines.stream().map(this::toDtoFromEntity)
+                .sorted(Comparator.comparing(CuisineDto::name))
+                .toList();
     }
 
 }
