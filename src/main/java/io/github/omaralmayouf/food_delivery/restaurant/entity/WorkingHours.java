@@ -6,6 +6,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +24,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "restaurant_working_hours")
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class WorkingHours {

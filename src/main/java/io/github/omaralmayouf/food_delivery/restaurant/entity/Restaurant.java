@@ -11,6 +11,9 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,12 +26,15 @@ import org.hibernate.annotations.UuidGenerator;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
 @Table(name = "restaurants")
@@ -53,9 +59,11 @@ public class Restaurant {
             joinColumns = @JoinColumn(name = "restaurant_id"),
             inverseJoinColumns = @JoinColumn(name = "cuisine_id")
     )
+    @Builder.Default
     Set<Cuisine> cuisines = new HashSet<>();
 
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     Set<WorkingHours> workingHours = new HashSet<>();
 
     // Address
@@ -72,7 +80,8 @@ public class Restaurant {
     @UpdateTimestamp
     Instant updatedAt;
 
-    public boolean isAcceptingOrders(LocalDateTime now) {
+    public boolean isAcceptingOrders() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Riyadh"));
         boolean isRestaurantOpen = workingHours.stream().anyMatch(hours -> hours.covers(now));
         return !manuallyPaused && isRestaurantOpen;
     }
