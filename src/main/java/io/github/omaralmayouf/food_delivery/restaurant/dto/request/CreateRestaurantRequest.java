@@ -18,30 +18,30 @@ import java.util.List;
 @Builder
 public record CreateRestaurantRequest(
 
-        @NotBlank(message = "Restaurant name is required")
+        @NotBlank(message = "{error.restaurant.name.required}")
         @Size(
                 max = 50,
-                message = "Restaurant name is too long, must be at most 50 characters"
+                message = "{error.restaurant.name.too_long}"
         )
         String name,
 
         @Size(
                 max = 160,
-                message = "Restaurant description is too long, must be at most 160 characters"
+                message = "{error.restaurant.description.too_long}"
         )
         String description,
 
-        @URL(message = "Logo url must be valid")
+        @URL(message = "{error.restaurant.logo_url.not_valid}")
         String logoUrl,
 
         @Valid
-        @NotEmpty(message = "Working hours is required")
+        @NotEmpty(message = "{error.restaurant.working_hours.required}")
         List<WorkingHoursDto> workingHours,
 
         @Valid
-        @NotNull(message = "Address is required")
+        @NotNull(message = "{error.restaurant.address.required}")
         AddressDto address,
 
-        @NotEmpty(message = "At least one cuisine is required")
+        @NotEmpty(message = "{error.restaurant.cuisines.required}")
         List<Long> cuisineIds) {
 }

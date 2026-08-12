@@ -3,31 +3,32 @@ package io.github.omaralmayouf.food_delivery.restaurant.dto;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalTime;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class WorkingHoursDtoTest {
 
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    private WorkingHoursDto.WorkingHoursDtoBuilder validWorkingHours() {
+    private static WorkingHoursDto.WorkingHoursDtoBuilder validWorkingHours() {
         return WorkingHoursDto.builder()
                 .dayOfWeek(0)
                 .openTime(LocalTime.of(9, 0))
                 .closeTime(LocalTime.of(17, 0));
     }
 
-    private Set<String> rejectedFieldsOf(WorkingHoursDto workingHours) {
+    private List<Tuple> violationsOf(WorkingHoursDto workingHours) {
         return validator.validate(workingHours).stream()
-                .map(violation -> violation.getPropertyPath().toString())
-                .collect(Collectors.toSet());
+                .map(violation -> tuple(violation.getPropertyPath().toString(), violation.getMessage()))
+                .toList();
     }
 
     @Test
@@ -41,29 +42,36 @@ class WorkingHoursDtoTest {
         assertThat(validator.validate(validWorkingHours().dayOfWeek(dayOfWeek).build())).isEmpty();
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {-1, 7, 99})
-    void shouldRejectDayOfWeekOutsideZeroToSix(int dayOfWeek) {
-        assertThat(rejectedFieldsOf(validWorkingHours().dayOfWeek(dayOfWeek).build()))
-                .contains("dayOfWeek");
-    }
-
     @Test
     void shouldRejectMissingDayOfWeek() {
-        assertThat(rejectedFieldsOf(validWorkingHours().dayOfWeek(null).build()))
-                .contains("dayOfWeek");
+        assertThat(violationsOf(validWorkingHours().dayOfWeek(null).build()))
+                .containsExactly(tuple("dayOfWeek", "{error.working_hours.day_of_week.required}"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, -99})
+    void shouldRejectDayOfWeekBelowZero(int dayOfWeek) {
+        assertThat(violationsOf(validWorkingHours().dayOfWeek(dayOfWeek).build()))
+                .containsExactly(tuple("dayOfWeek", "{error.working_hours.day_of_week.min_value}"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {7, 99})
+    void shouldRejectDayOfWeekAboveSix(int dayOfWeek) {
+        assertThat(violationsOf(validWorkingHours().dayOfWeek(dayOfWeek).build()))
+                .containsExactly(tuple("dayOfWeek", "{error.working_hours.day_of_week.max_value}"));
     }
 
     @Test
     void shouldRejectMissingOpenTime() {
-        assertThat(rejectedFieldsOf(validWorkingHours().openTime(null).build()))
-                .contains("openTime");
+        assertThat(violationsOf(validWorkingHours().openTime(null).build()))
+                .containsExactly(tuple("openTime", "{error.working_hours.open_time.required}"));
     }
 
     @Test
     void shouldRejectMissingCloseTime() {
-        assertThat(rejectedFieldsOf(validWorkingHours().closeTime(null).build()))
-                .contains("closeTime");
+        assertThat(violationsOf(validWorkingHours().closeTime(null).build()))
+                .containsExactly(tuple("closeTime", "{error.working_hours.close_time.required}"));
     }
 
     @Test

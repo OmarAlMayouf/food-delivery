@@ -6,6 +6,7 @@ import io.github.omaralmayouf.food_delivery.restaurant.dto.WorkingHoursDto;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -15,10 +16,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class CreateRestaurantRequestTest {
 
@@ -50,10 +50,10 @@ class CreateRestaurantRequestTest {
                 .cuisineIds(List.of(1L, 2L));
     }
 
-    private Set<String> rejectedFieldsOf(CreateRestaurantRequest request) {
+    private List<Tuple> violationsOf(CreateRestaurantRequest request) {
         return validator.validate(request).stream()
-                .map(violation -> violation.getPropertyPath().toString())
-                .collect(Collectors.toSet());
+                .map(violation -> tuple(violation.getPropertyPath().toString(), violation.getMessage()))
+                .toList();
     }
 
     @Test
@@ -65,12 +65,14 @@ class CreateRestaurantRequestTest {
     @NullSource
     @ValueSource(strings = {"", "   "})
     void shouldRejectMissingOrBlankName(String name) {
-        assertThat(rejectedFieldsOf(validRequest().name(name).build())).contains("name");
+        assertThat(violationsOf(validRequest().name(name).build()))
+                .containsExactly(tuple("name", "{error.restaurant.name.required}"));
     }
 
     @Test
     void shouldRejectNameLongerThanFiftyCharacters() {
-        assertThat(rejectedFieldsOf(validRequest().name("a".repeat(51)).build())).contains("name");
+        assertThat(violationsOf(validRequest().name("a".repeat(51)).build()))
+                .containsExactly(tuple("name", "{error.restaurant.name.too_long}"));
     }
 
     @Test
@@ -85,8 +87,8 @@ class CreateRestaurantRequestTest {
 
     @Test
     void shouldRejectDescriptionLongerThanOneSixty() {
-        assertThat(rejectedFieldsOf(validRequest().description("a".repeat(161)).build()))
-                .contains("description");
+        assertThat(violationsOf(validRequest().description("a".repeat(161)).build()))
+                .containsExactly(tuple("description", "{error.restaurant.description.too_long}"));
     }
 
     @Test
@@ -96,27 +98,28 @@ class CreateRestaurantRequestTest {
 
     @Test
     void shouldRejectMalformedLogoUrl() {
-        assertThat(rejectedFieldsOf(validRequest().logoUrl("not a url").build()))
-                .contains("logoUrl");
+        assertThat(violationsOf(validRequest().logoUrl("not a url").build()))
+                .containsExactly(tuple("logoUrl", "{error.restaurant.logo_url.not_valid}"));
     }
 
     @ParameterizedTest
     @NullAndEmptySource
     void shouldRejectMissingOrEmptyCuisineIds(List<Long> cuisineIds) {
-        assertThat(rejectedFieldsOf(validRequest().cuisineIds(cuisineIds).build()))
-                .contains("cuisineIds");
+        assertThat(violationsOf(validRequest().cuisineIds(cuisineIds).build()))
+                .containsExactly(tuple("cuisineIds", "{error.restaurant.cuisines.required}"));
     }
 
     @ParameterizedTest
     @NullAndEmptySource
     void shouldRejectMissingOrEmptyWorkingHours(List<WorkingHoursDto> workingHours) {
-        assertThat(rejectedFieldsOf(validRequest().workingHours(workingHours).build()))
-                .contains("workingHours");
+        assertThat(violationsOf(validRequest().workingHours(workingHours).build()))
+                .containsExactly(tuple("workingHours", "{error.restaurant.working_hours.required}"));
     }
 
     @Test
     void shouldRejectMissingAddress() {
-        assertThat(rejectedFieldsOf(validRequest().address(null).build())).contains("address");
+        assertThat(violationsOf(validRequest().address(null).build()))
+                .containsExactly(tuple("address", "{error.restaurant.address.required}"));
     }
 
     @Test
@@ -125,7 +128,8 @@ class CreateRestaurantRequestTest {
                 .address(validAddress().city("   ").build())
                 .build();
 
-        assertThat(rejectedFieldsOf(request)).contains("address.city");
+        assertThat(violationsOf(request))
+                .containsExactly(tuple("address.city", "{error.address.city.required}"));
     }
 
     @Test
@@ -134,7 +138,8 @@ class CreateRestaurantRequestTest {
                 .workingHours(List.of(validWorkingHours().dayOfWeek(7).build()))
                 .build();
 
-        assertThat(rejectedFieldsOf(request)).contains("workingHours[0].dayOfWeek");
+        assertThat(violationsOf(request))
+                .containsExactly(tuple("workingHours[0].dayOfWeek", "{error.working_hours.day_of_week.max_value}"));
     }
 
 }

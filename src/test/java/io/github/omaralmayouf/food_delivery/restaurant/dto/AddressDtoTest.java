@@ -3,6 +3,7 @@ package io.github.omaralmayouf.food_delivery.restaurant.dto;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -11,11 +12,11 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class AddressDtoTest {
 
@@ -30,11 +31,17 @@ class AddressDtoTest {
                 .longitude(new BigDecimal("46.675300"));
     }
 
+    private List<Tuple> violationsOf(AddressDto address) {
+        return validator.validate(address).stream()
+                .map(violation -> tuple(violation.getPropertyPath().toString(), violation.getMessage()))
+                .toList();
+    }
+
     static Stream<Arguments> valuesOverTheLengthLimit() {
         return Stream.of(
-                Arguments.of(validAddress().city("a".repeat(51)).build(), "city"),
-                Arguments.of(validAddress().district("a".repeat(51)).build(), "district"),
-                Arguments.of(validAddress().street("a".repeat(101)).build(), "street")
+                Arguments.of(validAddress().city("a".repeat(51)).build(), "city", "{error.address.city.too_long}"),
+                Arguments.of(validAddress().district("a".repeat(51)).build(), "district", "{error.address.district.too_long}"),
+                Arguments.of(validAddress().street("a".repeat(101)).build(), "street", "{error.address.street.too_long}")
         );
     }
 
@@ -46,12 +53,6 @@ class AddressDtoTest {
         );
     }
 
-    private Set<String> rejectedFieldsOf(AddressDto address) {
-        return validator.validate(address).stream()
-                .map(violation -> violation.getPropertyPath().toString())
-                .collect(Collectors.toSet());
-    }
-
     @Test
     void shouldAcceptAValidAddress() {
         assertThat(validator.validate(validAddress().build())).isEmpty();
@@ -61,27 +62,30 @@ class AddressDtoTest {
     @NullSource
     @ValueSource(strings = {"", "   "})
     void shouldRejectMissingOrBlankCity(String city) {
-        assertThat(rejectedFieldsOf(validAddress().city(city).build())).contains("city");
+        assertThat(violationsOf(validAddress().city(city).build()))
+                .containsExactly(tuple("city", "{error.address.city.required}"));
     }
 
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", "   "})
     void shouldRejectMissingOrBlankDistrict(String district) {
-        assertThat(rejectedFieldsOf(validAddress().district(district).build())).contains("district");
+        assertThat(violationsOf(validAddress().district(district).build()))
+                .containsExactly(tuple("district", "{error.address.district.required}"));
     }
 
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", "   "})
     void shouldRejectMissingOrBlankStreet(String street) {
-        assertThat(rejectedFieldsOf(validAddress().street(street).build())).contains("street");
+        assertThat(violationsOf(validAddress().street(street).build()))
+                .containsExactly(tuple("street", "{error.address.street.required}"));
     }
 
     @ParameterizedTest
     @MethodSource("valuesOverTheLengthLimit")
-    void shouldRejectTextLongerThanTheLimit(AddressDto address, String field) {
-        assertThat(rejectedFieldsOf(address)).contains(field);
+    void shouldRejectTextLongerThanTheLimit(AddressDto address, String field, String translationKey) {
+        assertThat(violationsOf(address)).containsExactly(tuple(field, translationKey));
     }
 
     @ParameterizedTest
@@ -92,19 +96,28 @@ class AddressDtoTest {
 
     @Test
     void shouldRejectMissingLatitude() {
-        assertThat(rejectedFieldsOf(validAddress().latitude(null).build())).contains("latitude");
+        assertThat(violationsOf(validAddress().latitude(null).build()))
+                .containsExactly(tuple("latitude", "{error.address.latitude.required}"));
     }
 
     @Test
     void shouldRejectMissingLongitude() {
-        assertThat(rejectedFieldsOf(validAddress().longitude(null).build())).contains("longitude");
+        assertThat(violationsOf(validAddress().longitude(null).build()))
+                .containsExactly(tuple("longitude", "{error.address.longitude.required}"));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"-90.1", "90.1", "1000"})
-    void shouldRejectLatitudeOutsideItsRange(String latitude) {
-        assertThat(rejectedFieldsOf(validAddress().latitude(new BigDecimal(latitude)).build()))
-                .contains("latitude");
+    @ValueSource(strings = {"-90.1", "-1000"})
+    void shouldRejectLatitudeBelowItsRange(String latitude) {
+        assertThat(violationsOf(validAddress().latitude(new BigDecimal(latitude)).build()))
+                .containsExactly(tuple("latitude", "{error.address.latitude.min_value}"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"90.1", "1000"})
+    void shouldRejectLatitudeAboveItsRange(String latitude) {
+        assertThat(violationsOf(validAddress().latitude(new BigDecimal(latitude)).build()))
+                .containsExactly(tuple("latitude", "{error.address.latitude.max_value}"));
     }
 
     @ParameterizedTest
@@ -115,10 +128,17 @@ class AddressDtoTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"-180.1", "180.1", "1000"})
-    void shouldRejectLongitudeOutsideItsRange(String longitude) {
-        assertThat(rejectedFieldsOf(validAddress().longitude(new BigDecimal(longitude)).build()))
-                .contains("longitude");
+    @ValueSource(strings = {"-180.1", "-1000"})
+    void shouldRejectLongitudeBelowItsRange(String longitude) {
+        assertThat(violationsOf(validAddress().longitude(new BigDecimal(longitude)).build()))
+                .containsExactly(tuple("longitude", "{error.address.longitude.min_value}"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"180.1", "1000"})
+    void shouldRejectLongitudeAboveItsRange(String longitude) {
+        assertThat(violationsOf(validAddress().longitude(new BigDecimal(longitude)).build()))
+                .containsExactly(tuple("longitude", "{error.address.longitude.max_value}"));
     }
 
     @ParameterizedTest
