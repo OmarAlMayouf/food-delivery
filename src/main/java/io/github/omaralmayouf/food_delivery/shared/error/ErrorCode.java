@@ -13,7 +13,8 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "error.validation"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "error.internal"),
 
-    CUISINE_NOT_FOUND(HttpStatus.UNPROCESSABLE_CONTENT, "error.cuisine.not_found");
+    CUISINE_NOT_FOUND(HttpStatus.UNPROCESSABLE_CONTENT, "error.cuisine.not_found"),
+    RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "error.restaurant.not_found");
 
     final HttpStatus statusCode;
 

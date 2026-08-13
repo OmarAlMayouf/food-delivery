@@ -6,6 +6,7 @@ import io.github.omaralmayouf.food_delivery.restaurant.entity.Cuisine;
 import io.github.omaralmayouf.food_delivery.restaurant.entity.Restaurant;
 import io.github.omaralmayouf.food_delivery.restaurant.entity.WorkingHours;
 import io.github.omaralmayouf.food_delivery.restaurant.exception.CuisineNotFoundException;
+import io.github.omaralmayouf.food_delivery.restaurant.exception.RestaurantNotFoundException;
 import io.github.omaralmayouf.food_delivery.restaurant.mapper.RestaurantMapper;
 import io.github.omaralmayouf.food_delivery.restaurant.mapper.WorkingHoursMapper;
 import io.github.omaralmayouf.food_delivery.restaurant.repository.CuisineRepository;
@@ -22,6 +23,7 @@ import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +37,23 @@ public class RestaurantService {
 
     final RestaurantMapper restaurantMapper;
     final WorkingHoursMapper workingHoursMapper;
+
+    public List<RestaurantResponse> getAllRestaurants() {
+        return restaurantRepository.findAll().stream()
+                .map(restaurant -> restaurantMapper.toDtoFromEntity(restaurant, LocalDateTime.now(ZoneId.of("Asia/Riyadh"))))
+                .toList();
+    }
+
+    public RestaurantResponse getRestaurantById(UUID restaurantId) {
+        return restaurantMapper.toDtoFromEntity(
+                restaurantRepository
+                        .findById(restaurantId)
+                        .orElseThrow(
+                                () -> new RestaurantNotFoundException(restaurantId)
+                        ),
+                LocalDateTime.now(ZoneId.of("Asia/Riyadh"))
+        );
+    }
 
     public RestaurantResponse createRestaurant(CreateRestaurantRequest request) {
 
