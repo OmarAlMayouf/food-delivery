@@ -31,4 +31,8 @@ public class WorkingHoursMapper {
         return workingHours.stream().map(this::toDtoFromEntity).toList();
     }
 
+    public List<WorkingHours> toEntityListFromDtoList(List<WorkingHoursDto> workingHoursDtoList) {
+        return workingHoursDtoList.stream().map(this::toEntityFromDto).toList();
+    }
+
 }
