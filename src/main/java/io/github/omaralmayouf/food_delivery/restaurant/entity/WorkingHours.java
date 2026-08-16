@@ -9,7 +9,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,14 +28,12 @@ import java.util.UUID;
 @Table(name = "restaurant_working_hours")
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class WorkingHours {
 
     // Table ID - PrimaryKey
     @Id
     @UuidGenerator(style = UuidGenerator.Style.TIME)
-    @EqualsAndHashCode.Include
     UUID id;
 
     // Relationship
