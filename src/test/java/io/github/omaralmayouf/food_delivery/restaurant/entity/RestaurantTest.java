@@ -73,4 +73,26 @@ class RestaurantTest {
         assertThat(restaurantWithoutWorkingHours().isAcceptingOrders(SUNDAY_NOON)).isFalse();
     }
 
+    @Test
+    void shouldKeepMultipleUnsavedWorkingHours() {
+        Restaurant restaurant = restaurantWithoutWorkingHours();
+
+        WorkingHours sundayShift = WorkingHours.builder()
+                .dayOfWeek(0)
+                .openTime(LocalTime.of(9, 0))
+                .closeTime(LocalTime.of(17, 0))
+                .build();
+
+        WorkingHours mondayShift = WorkingHours.builder()
+                .dayOfWeek(1)
+                .openTime(LocalTime.of(10, 0))
+                .closeTime(LocalTime.of(18, 0))
+                .build();
+
+        restaurant.addWorkingHours(sundayShift);
+        restaurant.addWorkingHours(mondayShift);
+
+        assertThat(restaurant.getWorkingHours()).containsExactlyInAnyOrder(sundayShift, mondayShift);
+    }
+
 }

@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +29,26 @@ public class GlobalExceptionHandler {
         String description = translate(errorCode.getTranslationKey(), exception.getMessageParams());
 
         return buildResponse(errorCode, description, List.of());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseBody> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+
+        log.error("Invalid JSON request", exception);
+
+        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
+        
+        return buildResponse(errorCode, translate(errorCode.getTranslationKey()), List.of());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseBody> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+
+        log.error("Invalid request parameter", exception);
+
+        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
+
+        return buildResponse(errorCode, translate(errorCode.getTranslationKey()), List.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
